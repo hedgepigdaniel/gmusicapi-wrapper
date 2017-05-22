@@ -40,6 +40,9 @@ def _get_mutagen_metadata(filepath):
 		logger.warning("Can't load {} as music file.".format(filepath))
 		raise
 
+	if metadata is None:
+		logger.warning("Can't load {} as music file.".format(filepath))
+
 	return metadata
 
 
@@ -288,15 +291,18 @@ def filter_local_songs(filepaths, include_filters=None, exclude_filters=None, al
 		except mutagen.MutagenError:
 			filtered_songs.append(filepath)
 		else:
-			if include_filters or exclude_filters:
-				if _check_filters(
-						song, include_filters=include_filters, exclude_filters=exclude_filters,
-						all_includes=all_includes, all_excludes=all_excludes):
-					matched_songs.append(filepath)
-				else:
-					filtered_songs.append(filepath)
+			if song is None:
+				filtered_songs.append(filepath)
 			else:
-				matched_songs.append(filepath)
+				if include_filters or exclude_filters:
+					if _check_filters(
+							song, include_filters=include_filters, exclude_filters=exclude_filters,
+							all_includes=all_includes, all_excludes=all_excludes):
+						matched_songs.append(filepath)
+					else:
+						filtered_songs.append(filepath)
+				else:
+					matched_songs.append(filepath)
 
 	return matched_songs, filtered_songs
 
